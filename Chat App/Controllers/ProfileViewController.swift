@@ -11,7 +11,7 @@ import FBSDKLoginKit
 import GoogleSignIn
 
 class ProfileViewController: UIViewController {
-
+    
     @IBOutlet var tableView : UITableView!
     let data = ["Log Out"]
     
@@ -20,10 +20,35 @@ class ProfileViewController: UIViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.delegate = self
         tableView.dataSource = self
-
+        tableView.tableHeaderView = createTableHear()
+        
     }
     
-
+    
+    func createTableHear() -> UIView? {
+        guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
+            return nil
+        }
+        let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
+        let fileName = safeEmail + "_profile_picture.png"
+        let path = "image/"+fileName
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.width, height: 300))
+        headerView.backgroundColor = .link
+        let imageView = UIImageView(frame: CGRect(x: (headerView.width - 150)/2, y: 75, width: 150, height: 150))
+        imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = .white
+        imageView.layer.borderColor = UIColor.white.cgColor
+        imageView.layer.borderWidth = 3
+        imageView.layer.masksToBounds = true
+        headerView.addSubview(imageView)
+        
+        StorageManager.shared.downloadURL(for: path, completion: {result in
+            
+        })
+        
+        return headerView
+    }
+    
 }
 extension ProfileViewController : UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -41,7 +66,7 @@ extension ProfileViewController : UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         let actionSheet = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
         actionSheet.addAction(UIAlertAction(title: "Log Out", style: .destructive,
-                                      handler: { [weak self] _ in
+                                            handler: { [weak self] _ in
             guard let strongSelf = self else {
                 return
             }
@@ -64,10 +89,10 @@ extension ProfileViewController : UITableViewDelegate, UITableViewDataSource {
         }))
         actionSheet.addAction(UIAlertAction(title: "Cancel",
                                             style: .cancel,
-                                           handler: nil))
+                                            handler: nil))
         
         present(actionSheet, animated: true)
         
-       
+        
     }
 }
