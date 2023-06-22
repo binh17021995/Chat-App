@@ -21,6 +21,8 @@ pod 'JGProgressHUD'
 pod 'RealmSwift'
 pod 'SDWebImage'
 
+Pod 'FIRStorage'
+
 
 
 

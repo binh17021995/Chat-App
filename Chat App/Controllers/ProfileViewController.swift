@@ -9,11 +9,15 @@ import UIKit
 import FirebaseAuth
 import FBSDKLoginKit
 import GoogleSignIn
+import SDWebImage
+import FirebaseStorage
 
 class ProfileViewController: UIViewController {
     
     @IBOutlet var tableView : UITableView!
     let data = ["Log Out"]
+    private let storage = Storage.storage().reference()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,7 +35,7 @@ class ProfileViewController: UIViewController {
         }
         let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
         let fileName = safeEmail + "_profile_picture.png"
-        let path = "image/"+fileName
+        let path = "images/"+fileName
         let headerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.width, height: 300))
         headerView.backgroundColor = .link
         let imageView = UIImageView(frame: CGRect(x: (headerView.width - 150)/2, y: 75, width: 150, height: 150))
@@ -40,12 +44,18 @@ class ProfileViewController: UIViewController {
         imageView.layer.borderColor = UIColor.white.cgColor
         imageView.layer.borderWidth = 3
         imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = imageView.width/2
         headerView.addSubview(imageView)
         
-        StorageManager.shared.downloadURL(for: path, completion: {result in
-            
+        StorageManager.shared.downloadURL(for: path, completion: { result in
+            switch result {
+            case .success(let url):
+                imageView.sd_setImage(with: url, completed: nil)
+            case .failure(let error):
+                print("Failed to get download url: \(error)")
+            }
         })
-        
+
         return headerView
     }
     

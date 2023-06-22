@@ -40,7 +40,8 @@ extension DatabaseManager {
     public func insertUser(with user: ChatAppUser, completion: @escaping (Bool) -> Void) {
         database.child(user.safeEmail).setValue([
             "first_name": user.firstName,
-            "last_name": user.lastName
+            "last_name": user.lastName,
+            "imageUser": user.profilePictureFileName
         ], withCompletionBlock: { [weak self] error, _ in
 
             guard let strongSelf = self else {
@@ -58,7 +59,8 @@ extension DatabaseManager {
                     // append to user dictionary
                     let newElement = [
                         "name": user.firstName + " " + user.lastName,
-                        "email": user.safeEmail
+                        "email": user.safeEmail,
+                        "imageUser": user.profilePictureFileName
                     ]
                     usersCollection.append(newElement)
 
@@ -76,7 +78,8 @@ extension DatabaseManager {
                     let newCollection: [[String: String]] = [
                         [
                             "name": user.firstName + " " + user.lastName,
-                            "email": user.safeEmail
+                            "email": user.safeEmail,
+                            "imageUser": user.profilePictureFileName
                         ]
                     ]
 
@@ -92,7 +95,30 @@ extension DatabaseManager {
             })
         })
     }
+    public func getAllUser(completion: @escaping (Result <[[String : String]], Error>) -> Void){
+
+        database.child("users").observeSingleEvent(of: .value, with: {snapshot in
+            guard let value = snapshot.value as? [[String : String]] else {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            completion(.success(value))
+        })
+    }
+    
+    public enum DatabaseError: Error {
+        case failedToFetch
+
+        public var localizedDescription: String {
+            switch self {
+            case .failedToFetch:
+                return "This means blah failed"
+            }
+        }
+    }
 }
+
+
 
 struct ChatAppUser {
     let firstName : String
@@ -109,3 +135,6 @@ struct ChatAppUser {
         return "\(safeEmail)_profile_picture.png"
     }
 }
+
+
+
