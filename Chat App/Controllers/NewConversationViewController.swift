@@ -12,6 +12,8 @@ class NewConversationViewController: UIViewController {
     
     private let spinner = JGProgressHUD(style: .dark)
     
+    public var completion : (([String: String]) -> (Void))?
+    
     private var hasFetched = false
     
     private var user = [[String: String]]()
@@ -86,6 +88,12 @@ extension NewConversationViewController : UITableViewDelegate, UITableViewDataSo
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         // start conversation
+        
+        let targetUserData = results[indexPath.row]
+        dismiss(animated: true, completion: { [weak self] in
+            self?.completion?(targetUserData)
+        })
+        print("vào đây")
         
     }
     

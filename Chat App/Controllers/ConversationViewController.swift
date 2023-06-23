@@ -19,7 +19,7 @@ class ConversationViewController: UIViewController {
         table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         return table
     }()
-
+    
     
     private let noConversationLabel: UILabel = {
         let label = UILabel()
@@ -28,7 +28,7 @@ class ConversationViewController: UIViewController {
         label.font = .systemFont(ofSize: 21, weight: .medium)
         label.isHidden = true
         label.textColor = .gray
-
+        
         return label
     }()
     
@@ -43,19 +43,38 @@ class ConversationViewController: UIViewController {
     
     @objc private func didTapComposeButton(){
         let vc = NewConversationViewController()
+        vc.completion = { [weak self] result in
+            print("\(result)")
+            self?.createConversation(result: result)
+            
+        }
         let navVC = UINavigationController(rootViewController: vc)
         present(navVC, animated: true)
     }
-
+    
+    private func createConversation(result : [String: String]){
+        guard let name = result["name"],
+              let email = result["email"] else {
+            return
+        }
+        
+        let vc = ChatViewController(with: email)
+        vc.isNewConversation = true
+        vc.title = name
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(vc, animated: true)
+        
+    }
+    
     override func viewDidLayoutSubviews(){
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
     }
-
+    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-       validateAuth()
+        validateAuth()
     }
     
     private func validateAuth(){
@@ -77,7 +96,7 @@ class ConversationViewController: UIViewController {
     private func fetchConversation(){
         tableView.isHidden = false
     }
-
+    
 }
 extension ConversationViewController : UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -91,12 +110,12 @@ extension ConversationViewController : UITableViewDelegate, UITableViewDataSourc
         return cell
     }
     
-
-
+    
+    
     func tableView(_ tableView : UITableView, didSelectRowAt indexPath : IndexPath){
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let vc = ChatViewController()
+        let vc = ChatViewController(with: "hekkkk@gmail.com")
         vc.title = "Jenny Smith"
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
